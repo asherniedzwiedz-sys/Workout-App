@@ -11,12 +11,21 @@ import { listReminders } from '@/db/reminders';
 import { countWorkouts } from '@/db/workouts';
 import { useData } from '@/hooks/useData';
 import { connectHealth, healthSupport, syncPendingToHealth } from '@/services/health';
+import { isExpoGo } from '@/services/runtime';
 import { getStatus as getStravaStatus } from '@/services/strava';
+import { getWatchStatus, watchBridgeAvailable } from '@/services/watch';
 import { notifyDataChanged } from '@/state/dataVersion';
 import { useSettings } from '@/state/settings';
 import { colors, font, space } from '@/theme';
 
 const BAR_WEIGHTS = [45, 35, 33, 25, 15];
+
+function watchSubtitle(): string {
+  const status = getWatchStatus();
+  if (!status?.paired) return 'No paired Apple Watch';
+  if (!status.watchAppInstalled) return 'Install IronLog from the Watch app on your iPhone';
+  return status.reachable ? 'Connected · log sets and rest from your wrist' : 'Installed · opens with your workout';
+}
 
 export default function SettingsTab() {
   const { settings, update } = useSettings();
@@ -113,6 +122,29 @@ export default function SettingsTab() {
           }}
         />
       ) : null}
+
+      <SectionTitle>Apple Watch</SectionTitle>
+      <Card style={styles.group}>
+        {watchBridgeAvailable() ? (
+          <SwitchRow
+            icon="watch-outline"
+            title="IronLog on Apple Watch"
+            subtitle={watchSubtitle()}
+            value={settings.watchSync}
+            onChange={(v) => void update({ watchSync: v })}
+          />
+        ) : (
+          <ListItem
+            icon="watch-outline"
+            title="Apple Watch"
+            subtitle={
+              isExpoGo
+                ? 'Rest-timer and reminder alerts show on your watch when the phone is locked. The watch app needs a development build.'
+                : 'Rest-timer and reminder alerts show on your watch when the phone is locked.'
+            }
+          />
+        )}
+      </Card>
 
       <SectionTitle>Rest timer</SectionTitle>
       <Card style={styles.group}>

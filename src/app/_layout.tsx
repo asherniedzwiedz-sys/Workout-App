@@ -11,6 +11,7 @@ import { initDatabase } from '@/db/client';
 import { initSound } from '@/services/feedback';
 import { configureNotifications } from '@/services/notifications';
 import { reconcileReminders } from '@/services/reminders';
+import { startWatchSync } from '@/services/watch';
 import { useActiveWorkout } from '@/state/activeWorkout';
 import { useExercises } from '@/state/exercises';
 import { useSettings } from '@/state/settings';
@@ -25,6 +26,7 @@ async function boot(): Promise<void> {
   await useActiveWorkout.getState().hydrate();
   void initSound();
   reconcileReminders().catch((e: unknown) => console.warn('Reminder check failed', e));
+  startWatchSync();
 }
 
 export default function RootLayout() {

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@bacons/apple-targets": "5.0.0",
     "@expo/metro-runtime": "~57.0.16",
     "@expo/vector-icons": "^15.0.2",
     "@kingstinct/react-native-healthkit": "16.1.0",
@@ -24,6 +25,7 @@
     "expo-secure-store": "~57.0.4",
     "expo-sqlite": "~57.0.4",
     "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.4",
     "expo-web-browser": "~57.0.3",
     "jest-expo": "~57.0.6",
     "react": "19.2.3",

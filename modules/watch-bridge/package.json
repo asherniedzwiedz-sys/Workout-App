@@ -1,0 +1,7 @@
+{
+  "name": "watch-bridge",
+  "version": "1.0.0",
+  "description": "WatchConnectivity bridge between IronLog and its Apple Watch app",
+  "main": "index.ts",
+  "private": true
+}

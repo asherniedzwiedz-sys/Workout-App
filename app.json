@@ -28,6 +28,7 @@
       "output": "single"
     },
     "plugins": [
+      "./plugins/withoutPushEntitlement",
       "expo-router",
       "expo-sqlite",
       [
@@ -58,7 +59,8 @@
           "NSHealthUpdateUsageDescription": "IronLog saves your finished strength workouts and manually logged runs to Apple Health.",
           "background": false
         }
-      ]
+      ],
+      "@bacons/apple-targets"
     ]
   }
 }
