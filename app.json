@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "IronLog",
+    "slug": "workout-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "ironlog",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0D10",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.asherniedzwiedz.ironlog"
+    },
+    "android": {
+      "package": "com.asherniedzwiedz.ironlog",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0D10",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-asset",
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "sounds": ["./assets/sounds/rest-done.wav"]
+        }
+      ]
+    ]
+  }
+}
