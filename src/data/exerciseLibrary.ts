@@ -127,8 +127,8 @@ const ROWS: Row[] = [
 
   // Legs: hinges
   ['deadlift', 'Deadlift (Barbell)', 'lower back', ['glutes', 'hamstrings', 'traps', 'forearms'], 'barbell', 'compound', 'hinge', 3],
-  ['sumo-deadlift', 'Sumo Deadlift (Barbell)', 'glutes', ['quads', 'hamstrings', 'adductors'], 'barbell', 'compound', 'hinge', 2],
-  ['trap-bar-deadlift', 'Trap Bar Deadlift', 'glutes', ['quads', 'hamstrings', 'traps'], 'barbell', 'compound', 'hinge', 2],
+  ['sumo-deadlift', 'Sumo Deadlift (Barbell)', 'glutes', ['quads', 'hamstrings', 'adductors'], 'barbell', 'compound', 'hinge', 1],
+  ['trap-bar-deadlift', 'Trap Bar Deadlift', 'glutes', ['quads', 'hamstrings', 'traps'], 'barbell', 'compound', 'hinge', 1],
   ['romanian-deadlift', 'Romanian Deadlift (Barbell)', 'hamstrings', ['glutes', 'lower back'], 'barbell', 'compound', 'hinge', 2],
   ['dumbbell-rdl', 'Romanian Deadlift (Dumbbell)', 'hamstrings', ['glutes', 'lower back'], 'dumbbell', 'compound', 'hinge', 2],
   ['good-morning', 'Good Morning (Barbell)', 'hamstrings', ['lower back', 'glutes'], 'barbell', 'compound', 'hinge', 1],

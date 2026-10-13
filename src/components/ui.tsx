@@ -142,12 +142,14 @@ export function Chip({
   onPress,
   color = colors.accent,
   testID,
+  capitalize = true,
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
   color?: string;
   testID?: string;
+  capitalize?: boolean;
 }) {
   return (
     <Pressable
@@ -160,7 +162,7 @@ export function Chip({
         selected ? { backgroundColor: color, borderColor: color } : null,
       ]}
     >
-      <Text style={[styles.chipText, selected ? { color: '#fff' } : null]}>{label}</Text>
+      <Text style={[styles.chipText, !capitalize && { textTransform: 'none' }, selected ? { color: '#fff' } : null]}>{label}</Text>
     </Pressable>
   );
 }

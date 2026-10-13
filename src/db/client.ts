@@ -6,7 +6,7 @@ import { MIGRATIONS } from './schema';
 
 const DATABASE_NAME = 'ironlog.db';
 /** Bump when EXERCISE_LIBRARY changes so existing installs pick up new/renamed exercises. */
-const LIBRARY_VERSION = '1';
+const LIBRARY_VERSION = '2';
 
 let database: SQLite.SQLiteDatabase | null = null;
 let opening: Promise<SQLite.SQLiteDatabase> | null = null;
