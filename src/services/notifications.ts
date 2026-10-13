@@ -1,8 +1,8 @@
-import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-export const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+import { isExpoGo } from './runtime';
+
 const supported = Platform.OS !== 'web';
 
 export type NotificationKind = 'rest' | 'reminder';

@@ -1,45 +1,61 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { RankedBars, WeeklyBars } from '@/components/charts';
-import { Badge, Card, EmptyState, SectionTitle, Stat } from '@/components/ui';
+import { RunCard } from '@/components/RunCard';
+import { Badge, Card, Chip, EmptyState, SectionTitle, Stat } from '@/components/ui';
+import { listRuns } from '@/db/runs';
 import { getMuscleSetCounts, getWorkoutStartTimes, listWorkoutSummaries } from '@/db/workouts';
 import { formatDate, formatDuration, formatMonth, formatVolume, startOfWeek } from '@/domain/format';
 import { weekStreak, weeklyBuckets } from '@/domain/stats';
-import type { WorkoutSummary } from '@/domain/types';
+import type { Run, WorkoutSummary } from '@/domain/types';
 import { useData } from '@/hooks/useData';
+import { useSettings } from '@/state/settings';
 import { colors, font, space } from '@/theme';
 
-type Row = { kind: 'month'; key: string; label: string } | { kind: 'workout'; key: string; workout: WorkoutSummary };
+type Row =
+  | { kind: 'month'; key: string; label: string }
+  | { kind: 'workout'; key: string; workout: WorkoutSummary }
+  | { kind: 'run'; key: string; run: Run };
+
+type Filter = 'all' | 'lifts' | 'runs';
 
 const DAY = 86_400_000;
 
 export default function HistoryTab() {
+  const unit = useSettings((s) => s.settings.distanceUnit);
+  const [filter, setFilter] = useState<Filter>('all');
   const { data } = useData(async () => {
     const now = Date.now();
-    const [workouts, times, muscles] = await Promise.all([
+    const [workouts, times, muscles, runs] = await Promise.all([
       listWorkoutSummaries(500),
       getWorkoutStartTimes(now - 365 * DAY),
       getMuscleSetCounts(now - 30 * DAY),
+      listRuns(500),
     ]);
-    return { workouts, times, muscles, now };
+    return { workouts, times, muscles, runs, now };
   });
 
   const rows = useMemo<Row[]>(() => {
+    const items: Row[] = [];
+    if (filter !== 'runs') for (const w of data?.workouts ?? []) items.push({ kind: 'workout', key: `w-${w.id}`, workout: w });
+    if (filter !== 'lifts') for (const r of data?.runs ?? []) items.push({ kind: 'run', key: `r-${r.id}`, run: r });
+    const time = (row: Row) => (row.kind === 'workout' ? row.workout.startedAt : row.kind === 'run' ? row.run.startedAt : 0);
+    items.sort((a, b) => time(b) - time(a));
     const out: Row[] = [];
     let month = '';
-    for (const w of data?.workouts ?? []) {
-      const label = formatMonth(w.startedAt);
+    for (const item of items) {
+      const label = formatMonth(time(item));
       if (label !== month) {
         month = label;
         out.push({ kind: 'month', key: `m-${label}`, label });
       }
-      out.push({ kind: 'workout', key: `w-${w.id}`, workout: w });
+      out.push(item);
     }
     return out;
-  }, [data?.workouts]);
+  }, [data?.workouts, data?.runs, filter]);
 
   const header = useMemo(() => {
     if (!data) return null;
@@ -73,9 +89,14 @@ export default function HistoryTab() {
             </Card>
           </>
         ) : null}
+        <View style={styles.filters}>
+          {(['all', 'lifts', 'runs'] as const).map((f) => (
+            <Chip key={f} label={f === 'all' ? 'All' : f === 'lifts' ? 'Lifts' : 'Runs'} selected={filter === f} onPress={() => setFilter(f)} testID={`history-filter-${f}`} />
+          ))}
+        </View>
       </View>
     );
-  }, [data]);
+  }, [data, filter]);
 
   return (
     <FlatList
@@ -90,7 +111,13 @@ export default function HistoryTab() {
         ) : null
       }
       renderItem={({ item }) =>
-        item.kind === 'month' ? <SectionTitle>{item.label}</SectionTitle> : <WorkoutCard workout={item.workout} />
+        item.kind === 'month' ? (
+          <SectionTitle>{item.label}</SectionTitle>
+        ) : item.kind === 'run' ? (
+          <RunCard run={item.run} unit={unit} />
+        ) : (
+          <WorkoutCard workout={item.workout} />
+        )
       }
     />
   );
@@ -137,6 +164,7 @@ function Meta({ icon, text }: { icon: 'time-outline' | 'barbell-outline' | 'chec
 
 const styles = StyleSheet.create({
   statsRow: { flexDirection: 'row', gap: space.sm },
+  filters: { flexDirection: 'row', gap: space.sm, marginTop: space.xl },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   meta: { ...font.small, marginTop: 2 },
   metaRow: { flexDirection: 'row', gap: space.lg, marginTop: space.sm },
