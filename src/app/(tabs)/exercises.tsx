@@ -51,6 +51,7 @@ export default function ExercisesTab() {
           <ListItem
             title={item.name}
             subtitle={`${item.primaryMuscle} · ${item.equipment}${item.isCustom ? ' · custom' : ''}`}
+            capitalize
             onPress={() => router.push(`/exercise/${item.id}`)}
             testID={`exercise-row-${item.id}`}
           />

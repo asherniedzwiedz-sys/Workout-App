@@ -86,7 +86,10 @@ export interface ExerciseRecords {
   heaviest: { weight: number; reps: number; at: number } | null;
   bestVolumeSet: { value: number; weight: number; reps: number; at: number } | null;
   mostReps: { reps: number; weight: number; at: number } | null;
-  /** Best weight lifted for each rep count 1..12 (Strong's "rep records"). */
+  /**
+   * Rep maxes for each rep count you've actually done (up to 12): the heaviest weight
+   * lifted for at least that many reps, so 210 × 6 also counts as your 5-rep best.
+   */
   repRecords: { reps: number; weight: number; at: number }[];
 }
 
@@ -99,7 +102,7 @@ export function computeRecords(sets: RecordSet[]): ExerciseRecords {
     mostReps: null,
     repRecords: [],
   };
-  const byReps = new Map<number, { weight: number; at: number }>();
+  const repCounts = new Set<number>();
   for (const s of working) {
     const e1rm = estimateOneRepMax(s.weight, s.reps);
     if (s.weight > 0 && (!records.bestE1rm || e1rm > records.bestE1rm.value)) {
@@ -115,13 +118,17 @@ export function computeRecords(sets: RecordSet[]): ExerciseRecords {
     if (!records.mostReps || s.reps > records.mostReps.reps) {
       records.mostReps = { reps: s.reps, weight: s.weight, at: s.completedAt };
     }
-    if (s.weight > 0 && s.reps <= 12) {
-      const current = byReps.get(s.reps);
-      if (!current || s.weight > current.weight) byReps.set(s.reps, { weight: s.weight, at: s.completedAt });
-    }
+    if (s.weight > 0 && s.reps <= 12) repCounts.add(s.reps);
   }
-  records.repRecords = [...byReps.entries()]
-    .map(([reps, v]) => ({ reps, ...v }))
-    .sort((a, b) => a.reps - b.reps);
+  const loaded = working.filter((s) => s.weight > 0);
+  records.repRecords = [...repCounts]
+    .sort((a, b) => a - b)
+    .map((reps) => {
+      let best: RecordSet | null = null;
+      for (const s of loaded) {
+        if (s.reps >= reps && (!best || s.weight > best.weight)) best = s;
+      }
+      return { reps, weight: best?.weight ?? 0, at: best?.completedAt ?? 0 };
+    });
   return records;
 }

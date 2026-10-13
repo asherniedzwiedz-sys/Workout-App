@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Pressable,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -218,9 +219,12 @@ export function ListItem({
   icon,
   iconColor = colors.textDim,
   testID,
+  capitalize,
 }: {
   title: string;
   subtitle?: string;
+  /** Capitalize each word of the subtitle (for tag lists like "chest · barbell"). */
+  capitalize?: boolean;
   right?: ReactNode;
   onPress?: () => void;
   icon?: IconName;
@@ -240,13 +244,50 @@ export function ListItem({
           {title}
         </Text>
         {subtitle ? (
-          <Text style={styles.listSubtitle} numberOfLines={2}>
+          <Text style={[styles.listSubtitle, capitalize && { textTransform: 'capitalize' }]} numberOfLines={2}>
             {subtitle}
           </Text>
         ) : null}
       </View>
       {right ?? (onPress ? <Ionicons name="chevron-forward" size={18} color={colors.textFaint} /> : null)}
     </Pressable>
+  );
+}
+
+export function SwitchRow({
+  title,
+  subtitle,
+  value,
+  onChange,
+  icon,
+  testID,
+  disabled,
+}: {
+  title: string;
+  subtitle?: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  icon?: IconName;
+  testID?: string;
+  disabled?: boolean;
+}) {
+  return (
+    <ListItem
+      title={title}
+      subtitle={subtitle}
+      icon={icon}
+      right={
+        <Switch
+          value={value}
+          onValueChange={onChange}
+          disabled={disabled}
+          testID={testID}
+          trackColor={{ true: colors.accent, false: colors.input }}
+          thumbColor="#fff"
+          ios_backgroundColor={colors.input}
+        />
+      }
+    />
   );
 }
 
@@ -357,7 +398,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   listTitle: { color: colors.text, fontSize: 16, fontWeight: '600' },
-  listSubtitle: { ...font.small, marginTop: 2, textTransform: 'capitalize' },
+  listSubtitle: { ...font.small, marginTop: 2 },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border, marginLeft: space.lg },
   badge: {
     flexDirection: 'row',

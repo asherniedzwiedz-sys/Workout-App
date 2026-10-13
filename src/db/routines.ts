@@ -1,5 +1,4 @@
-import type { Routine, RoutineExercise } from '@/domain/types';
-import type { FinishedWorkout } from '@/domain/workout';
+import type { Routine, RoutineExercise, SetType } from '@/domain/types';
 
 import { getDb } from './client';
 
@@ -157,7 +156,11 @@ export async function moveRoutine(id: number, direction: -1 | 1): Promise<void> 
  * Updates a routine's targets from a finished workout: each exercise's weight and reps
  * become that day's top working set (Strong's "update template" prompt).
  */
-export async function updateRoutineFromWorkout(routineId: number, workout: FinishedWorkout): Promise<boolean> {
+export interface WorkoutLike {
+  exercises: { exerciseId: string; sets: { type: SetType; weight: number; reps: number; e1rm: number }[] }[];
+}
+
+export async function updateRoutineFromWorkout(routineId: number, workout: WorkoutLike): Promise<boolean> {
   const routine = await getRoutine(routineId);
   if (!routine) return false;
   let changed = false;

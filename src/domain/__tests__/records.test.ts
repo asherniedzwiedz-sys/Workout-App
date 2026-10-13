@@ -81,4 +81,12 @@ describe('records', () => {
       [10, 185],
     ]);
   });
+
+  it('counts heavier sets with more reps toward lower rep maxes', () => {
+    const r = computeRecords([s(1, 1, 190, 5), s(2, 2, 210, 6)]);
+    expect(r.repRecords.map((x) => [x.reps, x.weight])).toEqual([
+      [5, 210],
+      [6, 210],
+    ]);
+  });
 });
