@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { DateTimeField } from '@/components/DateTimeField';
 import { notify } from '@/components/dialogs';
@@ -78,7 +78,7 @@ export default function NewRunScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Stack.Screen options={{ title: editingId !== null ? 'Edit run' : 'Log a run' }} />
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <Field label="Name" value={name} onChangeText={setName} testID="run-name" />
@@ -124,7 +124,7 @@ export default function NewRunScreen() {
 
         <Button title="Save run" icon="checkmark" variant="success" size="lg" onPress={save} loading={saving} style={{ marginTop: space.xl }} testID="save-run" />
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

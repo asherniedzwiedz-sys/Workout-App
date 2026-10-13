@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRef } from 'react';
+import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 
@@ -41,8 +42,22 @@ export function showActionSheet(config: { title?: string; message?: string; opti
 export function ActionSheetHost() {
   const { visible, title, message, options, hide } = useSheet();
   const insets = useSafeAreaInsets();
+  // iOS won't present a new modal (picker, nested sheet) while this one is still
+  // animating away, so actions run from onDismiss there. The timer is a fallback in
+  // case onDismiss doesn't fire; whichever comes first runs the action once.
+  const pending = useRef<(() => void) | null>(null);
+  const runPending = () => {
+    const action = pending.current;
+    pending.current = null;
+    action?.();
+  };
+  const choose = (action: () => void) => {
+    pending.current = action;
+    hide();
+    setTimeout(runPending, Platform.OS === 'ios' ? 700 : 250);
+  };
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={hide}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={hide} onDismiss={runPending}>
       <Pressable style={styles.backdrop} onPress={hide} testID="sheet-backdrop" />
       <View style={[styles.sheet, { paddingBottom: insets.bottom + space.md }]}>
         {title ? <Text style={styles.title}>{title}</Text> : null}
@@ -53,11 +68,7 @@ export function ActionSheetHost() {
               key={o.label}
               testID={o.testID}
               accessibilityRole="button"
-              onPress={() => {
-                hide();
-                // Let the sheet close before running actions that open other modals.
-                setTimeout(o.onPress, 250);
-              }}
+              onPress={() => choose(o.onPress)}
               style={({ pressed }) => [styles.option, pressed && { backgroundColor: colors.surfaceRaised }]}
             >
               {o.icon ? (

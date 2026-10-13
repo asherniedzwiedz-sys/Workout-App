@@ -5,7 +5,6 @@ import { useCallback, useMemo, useState } from 'react';
 import {
   InputAccessoryView,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -142,7 +141,7 @@ export default function ActiveWorkoutScreen() {
         <Button title="Finish" variant="success" size="sm" onPress={finish} loading={finishing} style={{ paddingHorizontal: space.lg }} testID="finish-workout" />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
@@ -190,7 +189,7 @@ export default function ActiveWorkoutScreen() {
           />
           <Button title="Discard workout" variant="danger" onPress={discard} style={{ marginTop: space.md }} />
         </ScrollView>
-      </KeyboardAvoidingView>
+      </View>
 
       <RestTimerBar />
 

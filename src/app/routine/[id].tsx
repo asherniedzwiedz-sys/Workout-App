@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { showActionSheet } from '@/components/ActionSheet';
 import { confirm, notify } from '@/components/dialogs';
@@ -110,7 +110,7 @@ export default function RoutineEditor() {
     });
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <Stack.Screen
         options={{
           title: isNew ? 'New routine' : 'Edit routine',
@@ -242,7 +242,7 @@ export default function RoutineEditor() {
         onClose={() => setPicking(false)}
         onPick={(ids) => setRows((rs) => [...rs, ...ids.map((id) => ({ ...defaultRoutineExercise(id), key: makeId('row') }))])}
       />
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
