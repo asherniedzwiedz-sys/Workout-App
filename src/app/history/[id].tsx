@@ -10,6 +10,8 @@ import { countWorkouts, deleteWorkout, getWorkoutDetail, updateWorkoutMeta } fro
 import { formatDateLong, formatDuration, formatSet, formatTimeOfDay, formatVolume, formatWeight } from '@/domain/format';
 import { PR_LABEL, type LoggedSet, type PrKind, type WorkoutDetail } from '@/domain/types';
 import { useData } from '@/hooks/useData';
+import { healthSupport, syncWorkoutToHealth } from '@/services/health';
+import { useSettings } from '@/state/settings';
 import { notifyDataChanged } from '@/state/dataVersion';
 import { getExercise } from '@/state/exercises';
 import { colors, font, radius, SET_TYPE_COLOR, space } from '@/theme';
@@ -50,6 +52,7 @@ export default function WorkoutDetailScreen() {
   const detail = data?.detail;
   const [notes, setNotes] = useState('');
   const [routineUpdated, setRoutineUpdated] = useState(false);
+  const healthOn = useSettings((s) => s.settings.healthSync) && healthSupport() === 'available';
 
   useEffect(() => {
     setNotes(detail?.notes ?? '');
@@ -177,6 +180,25 @@ export default function WorkoutDetailScreen() {
         style={styles.notes}
       />
 
+      {healthOn ? (
+        <View style={styles.health}>
+          <Ionicons name={detail.healthSynced ? 'heart' : 'heart-outline'} size={16} color={colors.danger} />
+          <Text style={font.small}>{detail.healthSynced ? 'Saved to Apple Health' : 'Not in Apple Health yet'}</Text>
+          {!detail.healthSynced ? (
+            <Text
+              style={{ color: colors.accent, fontWeight: '700' }}
+              onPress={async () => {
+                const ok = await syncWorkoutToHealth(detail.id);
+                notifyDataChanged();
+                if (!ok) notify('Apple Health', 'Could not save. Check Health permissions for IronLog.');
+              }}
+            >
+              Save now
+            </Text>
+          ) : null}
+        </View>
+      ) : null}
+
       <View style={{ gap: space.md, marginTop: space.xl }}>
         {routine ? (
           <Button
@@ -218,6 +240,7 @@ function routineFromWorkout(detail: WorkoutDetail) {
 
 const styles = StyleSheet.create({
   scroll: { padding: space.lg, paddingBottom: 80 },
+  health: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.lg },
   hero: { alignItems: 'center', gap: space.xs, paddingVertical: space.lg, marginBottom: space.md },
   heroTitle: { ...font.title },
   prRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },

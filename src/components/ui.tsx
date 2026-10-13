@@ -262,6 +262,7 @@ export function SwitchRow({
   value,
   onChange,
   icon,
+  iconColor,
   testID,
   disabled,
 }: {
@@ -270,6 +271,7 @@ export function SwitchRow({
   value: boolean;
   onChange: (v: boolean) => void;
   icon?: IconName;
+  iconColor?: string;
   testID?: string;
   disabled?: boolean;
 }) {
@@ -278,6 +280,7 @@ export function SwitchRow({
       title={title}
       subtitle={subtitle}
       icon={icon}
+      iconColor={iconColor}
       right={
         <Switch
           value={value}

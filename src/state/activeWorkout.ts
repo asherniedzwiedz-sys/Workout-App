@@ -18,6 +18,7 @@ import {
   type PreviousSet,
 } from '@/domain/workout';
 import { setCompleted, errorBuzz } from '@/services/feedback';
+import { syncWorkoutToHealth } from '@/services/health';
 
 import { notifyDataChanged } from './dataVersion';
 import { exerciseName, getExercise } from './exercises';
@@ -181,6 +182,7 @@ export const useActiveWorkout = create<ActiveWorkoutState>((set, get) => ({
     set({ workout: null, previous: {} });
     await clearPersisted();
     notifyDataChanged();
+    void syncWorkoutToHealth(workoutId).then((saved) => saved && notifyDataChanged());
     return { workoutId, finished };
   },
 

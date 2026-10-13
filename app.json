@@ -50,7 +50,15 @@
           ]
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "IronLog uses Apple Health to save your workouts.",
+          "NSHealthUpdateUsageDescription": "IronLog saves your finished strength workouts and manually logged runs to Apple Health.",
+          "background": false
+        }
+      ]
     ]
   }
 }

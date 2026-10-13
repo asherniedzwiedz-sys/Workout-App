@@ -4,11 +4,13 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { showActionSheet } from '@/components/ActionSheet';
 import { confirm, notify } from '@/components/dialogs';
-import { Card, Divider, ListItem, SectionTitle, Segmented, SwitchRow } from '@/components/ui';
+import { NumericInput } from '@/components/NumericInput';
+import { Button, Card, Divider, ListItem, SectionTitle, Segmented, SwitchRow } from '@/components/ui';
 import { seedDemoHistory } from '@/db/demo';
 import { listReminders } from '@/db/reminders';
 import { countWorkouts } from '@/db/workouts';
 import { useData } from '@/hooks/useData';
+import { connectHealth, healthSupport, syncPendingToHealth } from '@/services/health';
 import { getStatus as getStravaStatus } from '@/services/strava';
 import { notifyDataChanged } from '@/state/dataVersion';
 import { useSettings } from '@/state/settings';
@@ -25,6 +27,8 @@ export default function SettingsTab() {
   const workoutCount = data?.workoutCount;
   const activeReminders = data?.reminders.filter((r) => r.enabled).length ?? 0;
   const [seeding, setSeeding] = useState(false);
+  const [syncingHealth, setSyncingHealth] = useState(false);
+  const health = healthSupport();
 
   return (
     <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={styles.scroll}>
@@ -47,6 +51,68 @@ export default function SettingsTab() {
           testID="open-strava"
         />
       </Card>
+
+      <SectionTitle>Apple Health</SectionTitle>
+      <Card style={styles.group}>
+        <SwitchRow
+          icon="heart-outline"
+          iconColor={colors.danger}
+          title="Save workouts to Health"
+          subtitle={
+            health === 'expo-go'
+              ? 'Needs a development build (HealthKit is not available in Expo Go)'
+              : health === 'unsupported'
+                ? 'Apple Health is not available on this device'
+                : 'Strength workouts and manually logged runs'
+          }
+          value={settings.healthSync && health === 'available'}
+          disabled={health !== 'available'}
+          testID="setting-health"
+          onChange={async (v) => {
+            if (v && !(await connectHealth())) {
+              notify('Apple Health', 'Allow IronLog to write workouts in the Health app: Profile → Apps → IronLog.');
+            }
+            await update({ healthSync: v });
+          }}
+        />
+        {health === 'available' ? (
+          <>
+            <Divider />
+            <View style={styles.inline}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.inlineTitle}>Body weight (lb)</Text>
+                <Text style={font.tiny}>Optional. Used to estimate active calories.</Text>
+              </View>
+              <NumericInput
+                decimal
+                value={settings.bodyWeightLbs}
+                placeholder="—"
+                onChange={(v) => void update({ bodyWeightLbs: v })}
+                style={{ width: 90 }}
+              />
+            </View>
+          </>
+        ) : null}
+      </Card>
+      {settings.healthSync && health === 'available' ? (
+        <Button
+          title="Save past workouts to Health"
+          icon="cloud-upload-outline"
+          variant="secondary"
+          loading={syncingHealth}
+          style={{ marginTop: space.md }}
+          onPress={async () => {
+            setSyncingHealth(true);
+            try {
+              const r = await syncPendingToHealth();
+              notifyDataChanged();
+              notify('Apple Health', `Saved ${r.workouts} workout${r.workouts === 1 ? '' : 's'} and ${r.runs} run${r.runs === 1 ? '' : 's'}.`);
+            } finally {
+              setSyncingHealth(false);
+            }
+          }}
+        />
+      ) : null}
 
       <SectionTitle>Rest timer</SectionTitle>
       <Card style={styles.group}>
@@ -148,4 +214,6 @@ const styles = StyleSheet.create({
   group: { padding: 0, overflow: 'hidden' },
   value: { color: colors.textDim, fontSize: 16, marginRight: space.xs },
   footnote: { ...font.tiny, marginTop: space.sm, paddingHorizontal: space.xs },
+  inline: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.lg, paddingVertical: space.sm, backgroundColor: colors.surface },
+  inlineTitle: { color: colors.text, fontSize: 16, fontWeight: '600' },
 });
