@@ -6,8 +6,10 @@ import { showActionSheet } from '@/components/ActionSheet';
 import { confirm, notify } from '@/components/dialogs';
 import { Card, Divider, ListItem, SectionTitle, Segmented, SwitchRow } from '@/components/ui';
 import { seedDemoHistory } from '@/db/demo';
+import { listReminders } from '@/db/reminders';
 import { countWorkouts } from '@/db/workouts';
 import { useData } from '@/hooks/useData';
+import { getStatus as getStravaStatus } from '@/services/strava';
 import { notifyDataChanged } from '@/state/dataVersion';
 import { useSettings } from '@/state/settings';
 import { colors, font, space } from '@/theme';
@@ -16,11 +18,36 @@ const BAR_WEIGHTS = [45, 35, 33, 25, 15];
 
 export default function SettingsTab() {
   const { settings, update } = useSettings();
-  const { data: workoutCount } = useData(countWorkouts);
+  const { data } = useData(async () => {
+    const [workoutCount, reminders, strava] = await Promise.all([countWorkouts(), listReminders(), getStravaStatus()]);
+    return { workoutCount, reminders, strava };
+  });
+  const workoutCount = data?.workoutCount;
+  const activeReminders = data?.reminders.filter((r) => r.enabled).length ?? 0;
   const [seeding, setSeeding] = useState(false);
 
   return (
     <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={styles.scroll}>
+      <SectionTitle>Connections</SectionTitle>
+      <Card style={styles.group}>
+        <ListItem
+          icon="alarm-outline"
+          title="Workout reminders"
+          subtitle={activeReminders ? `${activeReminders} active` : 'Pick a routine, days and a time'}
+          onPress={() => router.push('/reminders')}
+          testID="open-reminders"
+        />
+        <Divider />
+        <ListItem
+          icon="walk-outline"
+          iconColor={colors.strava}
+          title="Strava"
+          subtitle={data?.strava.connected ? `Connected${data.strava.athleteName ? ` as ${data.strava.athleteName}` : ''}` : 'Import your runs'}
+          onPress={() => router.push('/strava')}
+          testID="open-strava"
+        />
+      </Card>
+
       <SectionTitle>Rest timer</SectionTitle>
       <Card style={styles.group}>
         <SwitchRow

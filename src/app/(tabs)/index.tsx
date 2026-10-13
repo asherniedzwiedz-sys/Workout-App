@@ -5,11 +5,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { showActionSheet } from '@/components/ActionSheet';
 import { confirm } from '@/components/dialogs';
 import { Button, Card, EmptyState, SectionTitle } from '@/components/ui';
-import { deleteRoutine, duplicateRoutine, listRoutines, moveRoutine } from '@/db/routines';
+import { duplicateRoutine, listRoutines, moveRoutine } from '@/db/routines';
 import { listWorkoutSummaries } from '@/db/workouts';
 import { formatDate } from '@/domain/format';
 import type { Routine } from '@/domain/types';
 import { useData } from '@/hooks/useData';
+import { removeRoutine } from '@/services/reminders';
 import { startRoutineWorkout, startEmptyWorkout } from '@/services/workoutActions';
 import { notifyDataChanged } from '@/state/dataVersion';
 import { exerciseName } from '@/state/exercises';
@@ -51,7 +52,7 @@ export default function WorkoutHome() {
           destructive: true,
           onPress: async () => {
             if (await confirm({ title: `Delete "${routine.name}"?`, message: 'Your workout history is kept.', confirmText: 'Delete', destructive: true })) {
-              await deleteRoutine(routine.id);
+              await removeRoutine(routine.id);
               notifyDataChanged();
             }
           },

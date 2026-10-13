@@ -9,9 +9,10 @@ import { ExercisePicker } from '@/components/ExercisePicker';
 import { NumericInput } from '@/components/NumericInput';
 import { formatRest, REST_OPTIONS } from '@/components/RestTimer';
 import { Button, EmptyState, Field } from '@/components/ui';
-import { deleteRoutine, getRoutine, saveRoutine } from '@/db/routines';
+import { getRoutine, saveRoutine } from '@/db/routines';
 import type { RoutineExercise } from '@/domain/types';
 import { makeId } from '@/domain/workout';
+import { refreshRoutineReminders, removeRoutine } from '@/services/reminders';
 import { startRoutineWorkout } from '@/services/workoutActions';
 import { notifyDataChanged } from '@/state/dataVersion';
 import { getExercise, useExercises } from '@/state/exercises';
@@ -83,6 +84,7 @@ export default function RoutineEditor() {
         source,
         exercises: rows.map(({ key: _key, id: _id, ...rest }) => rest),
       });
+      if (routineId !== undefined) void refreshRoutineReminders(id);
       notifyDataChanged();
       return id;
     } finally {
@@ -225,7 +227,7 @@ export default function RoutineEditor() {
                 onPress={async () => {
                   if (routineId === undefined) return;
                   if (await confirm({ title: 'Delete routine?', message: 'Your workout history is kept.', confirmText: 'Delete', destructive: true })) {
-                    await deleteRoutine(routineId);
+                    await removeRoutine(routineId);
                     notifyDataChanged();
                     router.back();
                   }

@@ -5,10 +5,12 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ActionSheetHost } from '@/components/ActionSheet';
+import { NotificationResponder } from '@/components/NotificationResponder';
 import { RestTimerWatcher } from '@/components/RestTimer';
 import { initDatabase } from '@/db/client';
 import { initSound } from '@/services/feedback';
 import { configureNotifications } from '@/services/notifications';
+import { reconcileReminders } from '@/services/reminders';
 import { useActiveWorkout } from '@/state/activeWorkout';
 import { useExercises } from '@/state/exercises';
 import { useSettings } from '@/state/settings';
@@ -22,6 +24,7 @@ async function boot(): Promise<void> {
   await Promise.all([useSettings.getState().load(), useExercises.getState().load()]);
   await useActiveWorkout.getState().hydrate();
   void initSound();
+  reconcileReminders().catch((e: unknown) => console.warn('Reminder check failed', e));
 }
 
 export default function RootLayout() {
@@ -68,6 +71,7 @@ export default function RootLayout() {
           <Stack.Screen name="workout" options={{ presentation: 'modal', headerShown: false }} />
         </Stack>
         <RestTimerWatcher />
+        <NotificationResponder />
         <ActionSheetHost />
       </ThemeProvider>
     </SafeAreaProvider>

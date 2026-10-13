@@ -6,9 +6,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { showActionSheet } from '@/components/ActionSheet';
 import { notify } from '@/components/dialogs';
 import { formatRest } from '@/components/RestTimer';
+import { TimeField } from '@/components/TimeField';
 import { Button, Card, Chip, SectionTitle, Segmented, SwitchRow } from '@/components/ui';
 import { getKv, setKv } from '@/db/kv';
-import { deleteRoutine, listRoutines, saveRoutine } from '@/db/routines';
+import { listRoutines, saveRoutine } from '@/db/routines';
 import { getRecentBestE1rm } from '@/db/workouts';
 import { formatWeight, weekdayShort } from '@/domain/format';
 import {
@@ -29,6 +30,7 @@ import {
 } from '@/domain/generator';
 import { EQUIPMENT, type Equipment } from '@/domain/types';
 import { useData } from '@/hooks/useData';
+import { removeRoutine, upsertReminder } from '@/services/reminders';
 import { notifyDataChanged } from '@/state/dataVersion';
 import { useExercises } from '@/state/exercises';
 import { colors, font, radius, space } from '@/theme';
@@ -55,6 +57,8 @@ export default function AiBuilderScreen() {
   const [input, setInput] = useState<GeneratorInput>(DEFAULT_INPUT);
   const [program, setProgram] = useState<Program | null>(null);
   const [replaceExisting, setReplaceExisting] = useState(true);
+  const [remind, setRemind] = useState(false);
+  const [remindAt, setRemindAt] = useState({ hour: 18, minute: 0 });
   const [saving, setSaving] = useState(false);
   const { data: extras } = useData(async () => {
     const [recentE1rm, routines] = await Promise.all([getRecentBestE1rm(Date.now() - 90 * 86_400_000), listRoutines()]);
@@ -119,11 +123,11 @@ export default function AiBuilderScreen() {
     setSaving(true);
     try {
       if (replaceExisting) {
-        for (const r of extras?.aiRoutines ?? []) await deleteRoutine(r.id);
+        for (const r of extras?.aiRoutines ?? []) await removeRoutine(r.id);
       }
       const goalLabel = program.input.goal === 'strength' ? 'Strength' : 'Hypertrophy';
       for (const day of program.days) {
-        await saveRoutine({
+        const routineId = await saveRoutine({
           name: day.name,
           notes: `AI plan · ${weekdayShort(day.weekday)} · ${goalLabel} · ~${estimateMinutes(day.exercises)} min`,
           source: 'ai',
@@ -135,6 +139,9 @@ export default function AiBuilderScreen() {
             restSec: e.restSec,
           })),
         });
+        if (remind) {
+          await upsertReminder({ routineId, weekdays: [day.weekday], hour: remindAt.hour, minute: remindAt.minute, enabled: true });
+        }
       }
       notifyDataChanged();
       router.back();
@@ -286,6 +293,21 @@ export default function AiBuilderScreen() {
                 onChange={setReplaceExisting}
               />
             </Card>
+          ) : null}
+
+          <Card style={{ padding: 0, overflow: 'hidden', marginTop: space.md }}>
+            <SwitchRow
+              title="Remind me on training days"
+              subtitle={program.days.map((d) => weekdayShort(d.weekday)).join(', ')}
+              value={remind}
+              onChange={setRemind}
+              testID="plan-remind"
+            />
+          </Card>
+          {remind ? (
+            <View style={{ marginTop: space.md }}>
+              <TimeField hour={remindAt.hour} minute={remindAt.minute} onChange={(hour, minute) => setRemindAt({ hour, minute })} />
+            </View>
           ) : null}
 
           <Button
