@@ -1,0 +1,5 @@
+# macOS, Python 3.11 or 3.12 (coremltools/torch wheels lag new Python releases)
+numpy>=1.26,<3
+torch>=2.3
+coremltools>=8.0
+jupyter

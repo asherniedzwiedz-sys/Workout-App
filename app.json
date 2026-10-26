@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "Liftlog",
+    "slug": "liftlog",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "liftlog",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0B0F",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "dev.liftlog.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "dev.liftlog.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0B0F",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-sharing",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "enableBackgroundPlayback": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "enableRemoteNotifications": false
+        }
+      ],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "Liftlog reads nothing from Health; this permission is required by iOS to write workouts.",
+          "NSHealthUpdateUsageDescription": "Liftlog saves your finished strength workouts to Apple Health.",
+          "background": false
+        }
+      ],
+      "@bacons/apple-targets",
+      "expo-font",
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

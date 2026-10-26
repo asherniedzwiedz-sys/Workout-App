@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>WKApplication</key>
+	<true/>
+	<key>WKRunsIndependentlyOfCompanionApp</key>
+	<false/>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>workout-processing</string>
+	</array>
+	<key>NSMotionUsageDescription</key>
+	<string>Liftlog reads wrist motion during workouts to detect sets, count reps and suggest the exercise. Motion data stays on your devices.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Liftlog runs a strength-training workout session so motion tracking keeps working with the screen off.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Liftlog runs a strength-training workout session so motion tracking keeps working with the screen off.</string>
+</dict>
+</plist>
