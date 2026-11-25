@@ -1,5 +1,7 @@
 # Liftlog
 
+**Status:** In progress.
+
 A workout tracker for iPhone + Apple Watch with Strong/Hevy-style logging, a Fitbod-style on-device routine builder,
 Strava run import, reminders, Apple Health, and a native watchOS app that detects sets and counts reps from wrist motion.
 Expo SDK 58 · React Native · TypeScript strict · expo-sqlite. Everything stays on your devices: no account, no backend.
